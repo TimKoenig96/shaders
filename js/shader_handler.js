@@ -2,6 +2,13 @@ import { SHADERS } from "./shaders.js";
 
 let isCurrentlyBusy = false;
 
+/**
+ * Fetch a GLSL shader
+ * @param {String} path Full path including file name
+ * @param {Number} index Nth position in compile queue
+ * @param {Array} targetArray Array to insert resulting code into
+ * @returns {Promise}
+ */
 function fetchShaderData(path, index, targetArray) {
 	return new Promise((resolve, reject) => {
 		fetch(path)
@@ -90,6 +97,10 @@ function getShaderData(shaderName) {
 	});
 }
 
+/**
+ * Change the displayed shader
+ * @param {String} shaderName Name of the shader
+ */
 export function changeShader(shaderName) {
 	getShaderData(shaderName)
 		.then(({vertexSource, fragmentSource}) => {

@@ -4,6 +4,9 @@ import { changeShader } from "./shader_handler.js";
 let navbar, canvas, perfTimer;
 export let ctx;
 
+/**
+ * Setup listeners, get elements, etc.
+ */
 export function setupPage() {
 
 	// Get elements
