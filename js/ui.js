@@ -1,4 +1,5 @@
 import { SHADERS } from "./shaders.js";
+import { changeShader } from "./shader_handler.js";
 
 let navbar, canvas, perfTimer;
 export let ctx;
@@ -19,6 +20,7 @@ export function setupPage() {
 		button.value = label;
 		button.dataset.targetShader = identifier;
 
+		button.addEventListener("click", (event) => changeShader(event.target.dataset.targetShader));
 
 		navbar.appendChild(button);
 	}
