@@ -12,7 +12,7 @@ export function setupPage() {
 	// Get elements
 	navbar = document.getElementById("navbar");
 	canvas = document.getElementById("canvas");
-	ctx = canvas.getContext("webgl")
+	ctx = canvas.getContext("webgl2");
 	perfTimer = document.getElementById("perfTimer");
 
 	// Add all buttons to navbar
