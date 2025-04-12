@@ -1,6 +1,8 @@
 import { SHADERS } from "./shaders.js";
+import { ctx } from "./ui.js";
 
 let isCurrentlyBusy = false;
+let program;
 
 /**
  * Fetch a GLSL shader
@@ -87,6 +89,65 @@ function getShaderData(shaderName) {
 }
 
 /**
+ * Compile a given shader
+ * @param {Number} shaderType Shader type constant
+ * @param {String} shaderSource Shader source code
+ * @returns {WebGLShader} Compiled shader
+ */
+function compileShader(shaderType, shaderSource) {
+
+	// Create the shader
+	const shader = ctx.createShader(shaderType);
+
+	// Set source and compile shader
+	ctx.shaderSource(shader, shaderSource);
+	ctx.compileShader(shader);
+
+	// Error handling
+	if (!ctx.getShaderParameter(shader, ctx.COMPILE_STATUS)) {
+		const info = ctx.getShaderInfoLog(shader);
+		ctx.deleteShader(shader);
+		throw new Error(`Unable to compile shader:\n${info}`);
+	}
+
+	return shader;
+}
+
+/**
+ * Create a shader program to be used by the canvas
+ * @param {String} vertexSource Source code of vertex shader
+ * @param {String} fragmentSource Source code of fragment shader
+ */
+function createShaderProgram(vertexSource, fragmentSource) {
+
+	// Compile shaders
+	const vertexShader = compileShader(ctx.VERTEX_SHADER, vertexSource);
+	const fragmentShader = compileShader(ctx.FRAGMENT_SHADER, fragmentSource);
+
+	// Create shader program
+	const program = ctx.createProgram();
+
+	// Link canvas to program
+	ctx.attachShader(program, vertexShader);
+	ctx.attachShader(program, fragmentShader);
+	ctx.linkProgram(program);
+
+	// Error handling
+	if (!ctx.getProgramParameter(program, ctx.LINK_STATUS)) {
+		const info = ctx.getProgramInfoLog(program);
+		ctx.deleteProgram(program);
+		throw new Error(`Unable to link program:\n${info}`);
+	}
+
+	// Validation
+	ctx.validateProgram(program);
+	if (!ctx.getProgramParameter(program, ctx.VALIDATE_STATUS))
+		console.warn("Program failed to validate:", ctx.getProgramInfoLog(program));
+
+	return program;
+}
+
+/**
  * Change the displayed shader
  * @param {String} shaderName Name of the shader
  */
@@ -110,6 +171,15 @@ export async function changeShader(shaderName) {
 
 		// Attempt fetching shader source data
 		const {vertexSource, fragmentSource} = await getShaderData(shaderName);
+
+		// Stash old shader program
+		const oldProgram = program;
+
+		// Create new shader program
+		program = createShaderProgram(vertexSource, fragmentSource);
+
+		// Delete old program
+		if (oldProgram) ctx.deleteProgram(oldProgram);
 	} catch (error) {
 		console.error(error);
 	} finally {
