@@ -29,19 +29,8 @@ function fetchShaderData(path, index, targetArray) {
 function getShaderData(shaderName) {
 	return new Promise((resolve, reject) => {
 
-		// Abort if busy
-		if (isCurrentlyBusy) {
-			reject(`Attempted loading new shader (${shaderName}) while not done loading previous one!`);
-			return;
-		}
-		isCurrentlyBusy = true;
-
-		// Get data on target shader
+		// Get target shader data
 		const shaderData = SHADERS.get(shaderName);
-		if (!shaderData) {
-			reject(`Attempted loading unknown shader (${shaderName})!`);
-			return;
-		}
 
 		// Fetch all vertex and fragment data
 		const promises = [];
@@ -101,9 +90,29 @@ function getShaderData(shaderName) {
  * Change the displayed shader
  * @param {String} shaderName Name of the shader
  */
-export function changeShader(shaderName) {
-	getShaderData(shaderName)
-		.then(({vertexSource, fragmentSource}) => {
-			// TODO: Compile
-		});
+export async function changeShader(shaderName) {
+
+	// Abort if busy
+	if (isCurrentlyBusy) {
+		console.error(`Attempted loading new shader (${shaderName}) while not done loading previous one!`);
+		return;
+	}
+
+	isCurrentlyBusy = true;
+
+	// Abort if shader does not exist
+	if (!SHADERS.has(shaderName)) {
+		console.error(`Attempted loading unknown shader (${shaderName})!`);
+		return;
+	}
+
+	try {
+
+		// Attempt fetching shader source data
+		const {vertexSource, fragmentSource} = await getShaderData(shaderName);
+	} catch (error) {
+		console.error(error);
+	} finally {
+		isCurrentlyBusy = false;
+	}
 }
