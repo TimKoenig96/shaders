@@ -13,14 +13,7 @@ function getElements() {
 	perfTimer = document.getElementById("perfTimer");
 }
 
-/**
- * Setup listeners, get elements, etc.
- */
-export function setupPage() {
-	getElements();
-	ctx = canvas.getContext("webgl2");
-
-	// Add all buttons to navbar
+function setupNavbarButtons() {
 	for (const [identifier, { label }] of SHADERS) {
 		const button = document.createElement("input");
 
@@ -32,4 +25,14 @@ export function setupPage() {
 
 		navbar.appendChild(button);
 	}
+}
+
+/**
+ * Setup listeners, get elements, etc.
+ */
+export function setupPage() {
+	getElements();
+	ctx = canvas.getContext("webgl2");
+
+	setupNavbarButtons();
 }
