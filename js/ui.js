@@ -5,15 +5,20 @@ let navbar, canvas, perfTimer;
 export let ctx;
 
 /**
+ * Get all required HTML elements
+ */
+function getElements() {
+	navbar = document.getElementById("navbar");
+	canvas = document.getElementById("canvas");
+	perfTimer = document.getElementById("perfTimer");
+}
+
+/**
  * Setup listeners, get elements, etc.
  */
 export function setupPage() {
-
-	// Get elements
-	navbar = document.getElementById("navbar");
-	canvas = document.getElementById("canvas");
+	getElements();
 	ctx = canvas.getContext("webgl2");
-	perfTimer = document.getElementById("perfTimer");
 
 	// Add all buttons to navbar
 	for (const [identifier, { label }] of SHADERS) {
