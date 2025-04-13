@@ -44,7 +44,7 @@ function getShaderData(shaderName) {
 		// Order matters
 		for (const fileName of shaderData.sharedVertex) {
 			promises.push(fetchShaderData(
-				`../shaders/shared/vertex/${fileName}.glsl`,
+				`../shaders/shared/vertex/${fileName}.vert`,
 				nVertex++,
 				vertexData
 			));
@@ -52,7 +52,7 @@ function getShaderData(shaderName) {
 
 		for (const fileName of shaderData.vertex) {
 			promises.push(fetchShaderData(
-				`../shaders/${shaderName}/${fileName}.glsl`,
+				`../shaders/${shaderName}/${fileName}.vert`,
 				nVertex++,
 				vertexData
 			));
@@ -60,7 +60,7 @@ function getShaderData(shaderName) {
 
 		for (const fileName of shaderData.sharedFragment) {
 			promises.push(fetchShaderData(
-				`../shaders/shared/fragment/${fileName}.glsl`,
+				`../shaders/shared/fragment/${fileName}.frag`,
 				nFragment++,
 				fragmentData
 			));
@@ -68,7 +68,7 @@ function getShaderData(shaderName) {
 
 		for (const fileName of shaderData.fragment) {
 			promises.push(fetchShaderData(
-				`../shaders/${shaderName}/${fileName}.glsl`,
+				`../shaders/${shaderName}/${fileName}.frag`,
 				nFragment++,
 				fragmentData
 			));
