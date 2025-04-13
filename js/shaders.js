@@ -3,8 +3,8 @@ export const SHADERS = new Map([
 		"demo",
 		{
 			label: "Demo",
-			vertex: [],
-			fragment: [],
+			vertex: ["vertex"],
+			fragment: ["fragment"],
 			sharedVertex: [],
 			sharedFragment: [],
 		}
