@@ -13,6 +13,9 @@ function getElements() {
 	perfTimer = document.getElementById("perfTimer");
 }
 
+/**
+ * Setting up navbar buttons for each existing shader
+ */
 function setupNavbarButtons() {
 	for (const [identifier, { label }] of SHADERS) {
 		const button = document.createElement("input");
@@ -28,6 +31,15 @@ function setupNavbarButtons() {
 }
 
 /**
+ * Set canvas to actual size and refresh viewport
+ */
+function windowResizeHandler() {
+	canvas.width = canvas.clientWidth;
+	canvas.height = canvas.clientHeight;
+	ctx.viewport(0, 0, canvas.width, canvas.height);
+}
+
+/**
  * Setup listeners, get elements, etc.
  */
 export function setupPage() {
@@ -35,4 +47,7 @@ export function setupPage() {
 	ctx = canvas.getContext("webgl2");
 
 	setupNavbarButtons();
+
+	window.addEventListener("resize", windowResizeHandler);
+	windowResizeHandler();
 }
