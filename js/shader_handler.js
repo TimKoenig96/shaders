@@ -1,7 +1,8 @@
 import { SHADERS } from "./shaders.js";
-import { ctx } from "./ui.js";
+import { ctx, perfTimer } from "./ui.js";
 
-let isCurrentlyBusy = false;
+let isBusy = false;
+let isRendering = false;
 let program;
 
 /**
@@ -147,6 +148,19 @@ function createShaderProgram(vertexSource, fragmentSource) {
 	return program;
 }
 
+function render() {
+	const start = performance.now();
+
+	ctx.useProgram(program);
+	ctx.clear(ctx.COLOR_BUFFER_BIT);
+	ctx.drawArrays(ctx.TRIANGLES, 0, 3);
+
+	const end = performance.now();
+	perfTimer.textContent = `${end - start}ms`;
+
+	requestAnimationFrame(render);
+}
+
 /**
  * Change the displayed shader
  * @param {String} shaderName Name of the shader
@@ -154,12 +168,12 @@ function createShaderProgram(vertexSource, fragmentSource) {
 export async function changeShader(shaderName) {
 
 	// Abort if busy
-	if (isCurrentlyBusy) {
+	if (isBusy) {
 		console.error(`Attempted loading new shader (${shaderName}) while not done loading previous one!`);
 		return;
 	}
 
-	isCurrentlyBusy = true;
+	isBusy = true;
 
 	// Abort if shader does not exist
 	if (!SHADERS.has(shaderName)) {
@@ -176,13 +190,25 @@ export async function changeShader(shaderName) {
 		const oldProgram = program;
 
 		// Create new shader program
-		program = createShaderProgram(vertexSource, fragmentSource);
+		const newProgram = createShaderProgram(vertexSource, fragmentSource);
+
+		// Use new program
+		ctx.useProgram(newProgram);
+
+		// Switch variables
+		program = newProgram;
+
+		// Start rendering
+		if (!isRendering) {
+			isRendering = true;
+			requestAnimationFrame(render);
+		}
 
 		// Delete old program
 		if (oldProgram) ctx.deleteProgram(oldProgram);
 	} catch (error) {
 		console.error(error);
 	} finally {
-		isCurrentlyBusy = false;
+		isBusy = false;
 	}
 }
