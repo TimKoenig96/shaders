@@ -40,5 +40,7 @@ canvas {
 }
 
 .stats {
+	position: absolute;
+	z-index: 1;
 	color: #fff5;
 }
