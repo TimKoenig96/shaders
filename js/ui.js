@@ -14,6 +14,28 @@ function getElements() {
 }
 
 /**
+ * Handle clicks on navbar buttons
+ * @param {MouseEvent} event Event triggered by click
+ */
+function handleNavbarButtonClick(event) {
+	const targetShader = event.target.dataset.targetShader;
+
+	// Abort if shader does not exist
+	if (!SHADERS.has(targetShader)) {
+		console.error(`Attempted loading unknown shader (${targetShader})!`);
+		return;
+	}
+
+	// Alter URL
+	const newUrl = new URL(document.location.href);
+	newUrl.searchParams.set("s", targetShader);
+	history.pushState({}, "", newUrl);
+
+	// Change the shader
+	changeShader(targetShader);
+}
+
+/**
  * Setting up navbar buttons for each existing shader
  */
 function setupNavbarButtons() {
@@ -24,7 +46,7 @@ function setupNavbarButtons() {
 		button.value = label;
 		button.dataset.targetShader = identifier;
 
-		button.addEventListener("click", (event) => changeShader(event.target.dataset.targetShader));
+		button.addEventListener("click", handleNavbarButtonClick);
 
 		navbar.appendChild(button);
 	}

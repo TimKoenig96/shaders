@@ -175,12 +175,6 @@ export async function changeShader(shaderName) {
 
 	isBusy = true;
 
-	// Abort if shader does not exist
-	if (!SHADERS.has(shaderName)) {
-		console.error(`Attempted loading unknown shader (${shaderName})!`);
-		return;
-	}
-
 	try {
 
 		// Attempt fetching shader source data
