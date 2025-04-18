@@ -1,4 +1,5 @@
 import { changeShader } from "./shader_handler.js";
+import { SHADERS } from "./shaders.js";
 import { setupPage } from "./ui.js";
 
 /**
@@ -13,7 +14,7 @@ function init() {
 	const targetShader = new URLSearchParams(document.location.search).get("s");
 
 	// Load specific shader
-	if (targetShader) changeShader(targetShader);
+	if (targetShader && SHADERS.has(targetShader)) changeShader(targetShader);
 }
 
 init();
