@@ -1,8 +1,8 @@
 import { SHADERS } from "./shaders.js";
 import { changeShader } from "./shader_handler.js";
 
-let navbar, canvas;
-export let ctx, perfTimer;
+let navbar;
+export let ctx, perfTimer, canvas;
 
 /**
  * Get all required HTML elements

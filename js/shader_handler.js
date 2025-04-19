@@ -1,5 +1,5 @@
 import { SHADERS } from "./shaders.js";
-import { ctx, perfTimer } from "./ui.js";
+import { canvas, ctx, perfTimer } from "./ui.js";
 
 let isBusy = false;
 let isRendering = false;
@@ -150,6 +150,9 @@ function createShaderProgram(vertexSource, fragmentSource) {
 
 function render() {
 	const start = performance.now();
+
+	ctx.uniform1f(ctx.getUniformLocation(program, "u_time"), start / 1000.0);
+	ctx.uniform2f(ctx.getUniformLocation(program, "u_resolution"), canvas.width, canvas.height);
 
 	ctx.useProgram(program);
 	ctx.clear(ctx.COLOR_BUFFER_BIT);
