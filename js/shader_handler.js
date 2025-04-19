@@ -5,6 +5,11 @@ let isBusy = false;
 let isRendering = false;
 let program;
 
+let prevRenderTime;
+let renderTimeDeltas = [];
+let renderTimeIndex = 0;
+const MAX_RENDER_TIMES = 100;
+
 /**
  * Fetch a GLSL shader
  * @param {String} path Full path including file name
@@ -148,18 +153,47 @@ function createShaderProgram(vertexSource, fragmentSource) {
 	return program;
 }
 
-function render() {
-	const start = performance.now();
+function getAverageFps(newTime) {
 
-	ctx.uniform1f(ctx.getUniformLocation(program, "u_time"), start / 1000.0);
+	// If first time running
+	if (prevRenderTime === undefined) {
+		prevRenderTime = newTime;
+		return "";
+	}
+
+	// Delta in milliseconds
+	const delta = newTime - prevRenderTime;
+
+	// Insert delta into render times
+	renderTimeDeltas[renderTimeIndex] = delta;
+
+	// Update render time index
+	renderTimeIndex = (renderTimeIndex + 1) % MAX_RENDER_TIMES;
+
+	// Update prev render time
+	prevRenderTime = newTime;
+
+	// Calculate average render time
+	let sum = 0;
+	const len = renderTimeDeltas.length;
+	for (let i = 0; i < len; i++) sum += renderTimeDeltas[i];
+	const avg = sum / len;
+
+	// Convert render time to FPS
+	const fps = 1000 / avg;
+
+	return Math.ceil(fps);
+}
+
+function render(ms) {
+	ctx.uniform1f(ctx.getUniformLocation(program, "u_time"), ms / 1000.0);
 	ctx.uniform2f(ctx.getUniformLocation(program, "u_resolution"), canvas.width, canvas.height);
 
 	ctx.useProgram(program);
 	ctx.clear(ctx.COLOR_BUFFER_BIT);
 	ctx.drawArrays(ctx.TRIANGLES, 0, 3);
 
-	const end = performance.now();
-	perfTimer.textContent = `${end - start}ms`;
+	perfTimer.textContent = `${getAverageFps(ms)}fps`;
 
 	requestAnimationFrame(render);
 }
