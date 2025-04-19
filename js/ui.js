@@ -18,7 +18,10 @@ function getElements() {
  * @param {MouseEvent} event Event triggered by click
  */
 function handleNavbarButtonClick(event) {
-	const targetShader = event.target.dataset.targetShader;
+	const targetElement = event.target.closest("[data-target-shader]");
+	if (!targetElement) return;
+
+	const targetShader = targetElement.dataset.targetShader;
 
 	// Abort if shader does not exist
 	if (!SHADERS.has(targetShader)) {
@@ -39,15 +42,18 @@ function handleNavbarButtonClick(event) {
  * Setting up navbar buttons for each existing shader
  */
 function setupNavbarButtons() {
-	for (const [identifier, { label }] of SHADERS) {
-		const button = document.createElement("input");
+	for (const [identifier, { label, desc, date }] of SHADERS) {
+		const button = document.createElement("div");
+		button.classList.add("button");
 
-		button.type = "button";
-		button.value = label;
+		button.innerHTML = `
+			<p class="label">${label ?? "MISSING LABEL: " + identifier}</p><hr>
+			<p class="desc">${desc ?? "MISSING DESC: " + identifier}</p><hr>
+			<p class="date">${date ?? "MISSING DATE: " + identifier}</p>
+		`;
+
 		button.dataset.targetShader = identifier;
-
 		button.addEventListener("click", handleNavbarButtonClick);
-
 		navbar.appendChild(button);
 	}
 }
