@@ -35,6 +35,10 @@ function navbarButtonClickHandler(event) {
 		console.error(`Unknown target shader: '${shaderName}'`);
 		return;
 	}
+
+	const newUrl = new URL(document.location.href);
+	newUrl.searchParams.set("s", encodeURIComponent(shaderName));
+	history.pushState({}, "", newUrl);
 }
 
 function init() {
