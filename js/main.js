@@ -50,14 +50,23 @@ function navbarButtonClickHandler(event) {
 	}
 
 	const newUrl = new URL(document.location.href);
-	newUrl.searchParams.set("s", encodeURIComponent(shaderName));
+	newUrl.searchParams.set("shader", encodeURIComponent(shaderName));
 	history.pushState({}, "", newUrl);
 
 	switchShader(shaderName);
 }
 
+function applySearchParameters() {
+	const searchParams = new URLSearchParams(window.location.search);
+	if (!searchParams.has("shader")) return;
+
+	const shaderName = decodeURIComponent(searchParams.get("shader"));
+	if (SHADERS.has(shaderName)) switchShader(shaderName);
+}
+
 function init() {
 	setupNavbar();
+	applySearchParameters();
 }
 
 init();
