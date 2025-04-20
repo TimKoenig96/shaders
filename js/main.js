@@ -22,6 +22,20 @@ function setupNavbar() {
 		button.dataset.shader = identifier;
 		navbar.appendChild(button);
 	}
+
+	navbar.addEventListener("click", navbarButtonClickHandler);
+}
+
+function navbarButtonClickHandler(event) {
+	const clickedButton = event.target.closest("[data-shader]");
+	if (!clickedButton) return;
+
+	const targetShaderName = clickedButton.dataset.shader;
+	const targetShader = SHADERS.get(targetShaderName);
+	if (!targetShader) {
+		console.error(`Unknown target shader: '${targetShaderName}'`);
+		return;
+	}
 }
 
 function init() {
