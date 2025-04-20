@@ -1,3 +1,5 @@
+import { ShaderHandler } from "./ShaderHandler.js";
+
 const SHADERS = new Map([
 	["water-1", {
 		label: "Water 1",
@@ -5,6 +7,9 @@ const SHADERS = new Map([
 		date: "20th Apr 2025"
 	}]
 ]);
+
+let currentShader;
+
 
 function setupNavbar() {
 	const navbar = document.getElementById("navbar");
