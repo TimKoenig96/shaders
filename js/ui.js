@@ -21,21 +21,19 @@ function handleNavbarButtonClick(event) {
 	const targetElement = event.target.closest("[data-target-shader]");
 	if (!targetElement) return;
 
-	const targetShader = targetElement.dataset.targetShader;
-
-	// Abort if shader does not exist
-	if (!SHADERS.has(targetShader)) {
-		console.error(`Attempted loading unknown shader (${targetShader})!`);
+	const targetShaderName = targetElement.dataset.targetShader;
+	if (!SHADERS.has(targetShaderName)) {
+		console.warn(`Attempted loading unknown shader: ${targetShaderName}`);
 		return;
 	}
 
 	// Alter URL
 	const newUrl = new URL(document.location.href);
-	newUrl.searchParams.set("s", targetShader);
+	newUrl.searchParams.set("s", targetShaderName);
 	history.pushState({}, "", newUrl);
 
 	// Change the shader
-	changeShader(targetShader);
+	changeShader(targetShaderName);
 }
 
 /**
