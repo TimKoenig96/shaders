@@ -58,7 +58,7 @@ function getShaderData(shaderName) {
 
 		for (const fileName of shaderData.vertex) {
 			promises.push(fetchShaderData(
-				`../shaders/${shaderName}/${fileName}.vert`,
+				`../shaders/projects/${shaderName}/${fileName}.vert`,
 				nVertex++,
 				vertexData
 			));
@@ -74,7 +74,7 @@ function getShaderData(shaderName) {
 
 		for (const fileName of shaderData.fragment) {
 			promises.push(fetchShaderData(
-				`../shaders/${shaderName}/${fileName}.frag`,
+				`../shaders/projects/${shaderName}/${fileName}.frag`,
 				nFragment++,
 				fragmentData
 			));
