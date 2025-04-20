@@ -31,6 +31,14 @@ function setupNavbar() {
 	navbar.addEventListener("click", navbarButtonClickHandler);
 }
 
+async function switchShader(shaderName) {
+	if (currentShader) await currentShader.kill();
+
+	const shaderData = SHADERS.get(shaderName);
+
+	currentShader = new ShaderHandler(shaderData);
+}
+
 function navbarButtonClickHandler(event) {
 	const clickedButton = event.target.closest("[data-shader]");
 	if (!clickedButton) return;
@@ -44,6 +52,8 @@ function navbarButtonClickHandler(event) {
 	const newUrl = new URL(document.location.href);
 	newUrl.searchParams.set("s", encodeURIComponent(shaderName));
 	history.pushState({}, "", newUrl);
+
+	switchShader(shaderName);
 }
 
 function init() {
