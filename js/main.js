@@ -30,10 +30,9 @@ function navbarButtonClickHandler(event) {
 	const clickedButton = event.target.closest("[data-shader]");
 	if (!clickedButton) return;
 
-	const targetShaderName = clickedButton.dataset.shader;
-	const targetShader = SHADERS.get(targetShaderName);
-	if (!targetShader) {
-		console.error(`Unknown target shader: '${targetShaderName}'`);
+	const shaderName = clickedButton.dataset.shader;
+	if (!SHADERS.has(shaderName)) {
+		console.error(`Unknown target shader: '${shaderName}'`);
 		return;
 	}
 }
