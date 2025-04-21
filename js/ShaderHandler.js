@@ -1,4 +1,4 @@
-import { SHADERS } from "./main.js";
+import { gl, SHADERS } from "./main.js";
 
 export class ShaderHandler {
 	#shaderId;
@@ -24,6 +24,27 @@ export class ShaderHandler {
 			const text = await resp.text();
 			return text;
 		}));
+	}
+
+	/**
+	 * Compile a shaders' source code into a usable WebGL shader
+	 * @param {Number} shaderType Either `WebGL2RenderingContext.VERTEX_SHADER` or `.FRAGMENT_SHADER`
+	 * @param {String} shaderSource Shader source code
+	 * @returns {WebGLShader}
+	 */
+	static #compileShader(shaderType, shaderSource) {
+		const shader = gl.createShader(shaderType);
+
+		gl.shaderSource(shader, shaderSource);
+		gl.compileShader(shader);
+
+		if (!gl.getShaderParameter(shader, WebGL2RenderingContext.COMPILE_STATUS)) {
+			const info = gl.getShaderInfoLog(shader);
+			gl.deleteShader(shader);
+			throw new Error(`Unable to compile shader:\n${info}`);
+		}
+
+		return shader;
 	}
 
 	/**
@@ -54,6 +75,9 @@ export class ShaderHandler {
 	async initializeAndStart() {
 		try {
 			const { vertexSource, fragmentSource } = await this.#getShaderData();
+
+			const vertexShader = ShaderHandler.#compileShader(WebGL2RenderingContext.VERTEX_SHADER, vertexSource);
+			const fragmentShader = ShaderHandler.#compileShader(WebGL2RenderingContext.FRAGMENT_SHADER, fragmentSource);
 		} catch (error) {
 			console.error("An error occurred during shader initialization:\n", error);
 		}

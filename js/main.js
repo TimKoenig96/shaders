@@ -9,7 +9,8 @@ export const SHADERS = new Map([
 ]);
 
 let currentShader;
-let canvas, gl, perfTimer, canvasWidth, canvasHeight;
+let canvas, perfTimer, canvasWidth, canvasHeight;
+export let gl;
 
 
 function setupNavbar() {
