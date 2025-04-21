@@ -1,10 +1,12 @@
+import { SHADERS } from "./main.js";
+
 export class ShaderHandler {
 	#shaderId;
 	#shaderData;
 
-	constructor(shaderId, shaderData) {
+	constructor(shaderId) {
 		this.#shaderId = shaderId;
-		this.#shaderData = shaderData;
+		this.#shaderData = SHADERS.get(shaderId);
 	}
 
 	/**

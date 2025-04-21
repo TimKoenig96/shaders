@@ -1,6 +1,6 @@
 import { ShaderHandler } from "./ShaderHandler.js";
 
-const SHADERS = new Map([
+export const SHADERS = new Map([
 	["water-1", {
 		label: "Water 1",
 		desc: "First ever attempt at making shaders.",
@@ -35,9 +35,7 @@ function setupNavbar() {
 async function switchShader(shaderId) {
 	if (currentShader) await currentShader.kill();
 
-	const shaderData = SHADERS.get(shaderId);
-
-	currentShader = new ShaderHandler(shaderId, shaderData);
+	currentShader = new ShaderHandler(shaderId);
 	currentShader.initializeAndStart();
 }
 
