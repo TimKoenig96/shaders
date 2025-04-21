@@ -32,12 +32,12 @@ function setupNavbar() {
 	navbar.addEventListener("click", navbarButtonClickHandler);
 }
 
-async function switchShader(shaderName) {
+async function switchShader(shaderId) {
 	if (currentShader) await currentShader.kill();
 
-	const shaderData = SHADERS.get(shaderName);
+	const shaderData = SHADERS.get(shaderId);
 
-	currentShader = new ShaderHandler(shaderName, shaderData);
+	currentShader = new ShaderHandler(shaderId, shaderData);
 	currentShader.initializeAndStart();
 }
 
@@ -45,25 +45,25 @@ function navbarButtonClickHandler(event) {
 	const clickedButton = event.target.closest("[data-shader]");
 	if (!clickedButton) return;
 
-	const shaderName = clickedButton.dataset.shader;
-	if (!SHADERS.has(shaderName)) {
-		console.error(`Unknown target shader: '${shaderName}'`);
+	const shaderId = clickedButton.dataset.shader;
+	if (!SHADERS.has(shaderId)) {
+		console.error(`Unknown target shader: '${shaderId}'`);
 		return;
 	}
 
 	const newUrl = new URL(document.location.href);
-	newUrl.searchParams.set("shader", encodeURIComponent(shaderName));
+	newUrl.searchParams.set("shader", encodeURIComponent(shaderId));
 	history.pushState({}, "", newUrl);
 
-	switchShader(shaderName);
+	switchShader(shaderId);
 }
 
 function applySearchParameters() {
 	const searchParams = new URLSearchParams(window.location.search);
 	if (!searchParams.has("shader")) return;
 
-	const shaderName = decodeURIComponent(searchParams.get("shader"));
-	if (SHADERS.has(shaderName)) switchShader(shaderName);
+	const shaderId = decodeURIComponent(searchParams.get("shader"));
+	if (SHADERS.has(shaderId)) switchShader(shaderId);
 }
 
 function resizeCanvasToFit() {
