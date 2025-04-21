@@ -102,6 +102,26 @@ export class ShaderHandler {
 	}
 
 	/**
+	 * Render a frame
+	 * @param {Number} ms Automatically provided by `requestAnimationFrame`
+	 */
+	#render(ms) {
+		gl.useProgram(this.#program);
+		gl.clear(WebGL2RenderingContext.COLOR_BUFFER_BIT);
+
+		// TODO: Drawing
+		/* Note `gl.drawArrays(mode, first, count);`
+			Since mode can be multiple GL enums, needs to be specified per shader, eg. via geometry JS file
+			No reason in having first be anything other than 0 for now
+			Count should be dynamically calculated based on amount of vertices and mode chosen
+		*/
+
+		// TODO: Performance timer measurement
+
+		requestAnimationFrame(this.#render.bind(this));
+	}
+
+	/**
 	 * Initialize and start rendering the shader
 	 */
 	async initializeAndStart() {
@@ -112,6 +132,10 @@ export class ShaderHandler {
 			const fragmentShader = ShaderHandler.#compileShader(WebGL2RenderingContext.FRAGMENT_SHADER, fragmentSource);
 
 			this.#program = ShaderHandler.#createShaderProgram(vertexShader, fragmentShader);
+
+			gl.useProgram(this.#program);
+
+			requestAnimationFrame(this.#render.bind(this));
 		} catch (error) {
 			console.error("An error occurred during shader initialization:\n", error);
 		}
