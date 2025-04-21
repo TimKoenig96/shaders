@@ -2,12 +2,10 @@ import { gl, SHADERS } from "./main.js";
 
 export class ShaderHandler {
 	#shaderId;
-	#shaderData;
 	#program;
 
 	constructor(shaderId) {
 		this.#shaderId = shaderId;
-		this.#shaderData = SHADERS.get(shaderId);
 	}
 
 	/**
@@ -80,15 +78,18 @@ export class ShaderHandler {
 
 	/**
 	 * Get all vertex and fragment data for the current shader
+	 * @param {String} shaderId Shader ID
 	 * @returns {Object}
 	 */
-	async #getShaderData() {
+	static async #fetchShaderSourceCode(shaderId) {
+		const shaderData = SHADERS.get(shaderId);
+
 		try {
 			const [sharedVertexSources, vertexSources, sharedFragmentSources, fragmentSources] = await Promise.all([
-				ShaderHandler.#loadShaderFiles("../shaders/shared/vertex/", this.#shaderData.sharedVertex ?? []),
-				ShaderHandler.#loadShaderFiles(`../shaders/projects/${this.#shaderId}/`, this.#shaderData.vertex ?? []),
-				ShaderHandler.#loadShaderFiles("../shaders/shared/fragment/", this.#shaderData.sharedFragment ?? []),
-				ShaderHandler.#loadShaderFiles(`../shaders/projects/${this.#shaderId}/`, this.#shaderData.fragment ?? [])
+				ShaderHandler.#loadShaderFiles("../shaders/shared/vertex/", shaderData.sharedVertex ?? []),
+				ShaderHandler.#loadShaderFiles(`../shaders/projects/${shaderId}/`, shaderData.vertex ?? []),
+				ShaderHandler.#loadShaderFiles("../shaders/shared/fragment/", shaderData.sharedFragment ?? []),
+				ShaderHandler.#loadShaderFiles(`../shaders/projects/${shaderId}/`, shaderData.fragment ?? [])
 			]);
 
 			const vertexSource = [...sharedVertexSources, ...vertexSources].join("\n");
@@ -105,7 +106,7 @@ export class ShaderHandler {
 	 */
 	async initializeAndStart() {
 		try {
-			const { vertexSource, fragmentSource } = await this.#getShaderData();
+			const { vertexSource, fragmentSource } = await ShaderHandler.#fetchShaderSourceCode(this.#shaderId);
 
 			const vertexShader = ShaderHandler.#compileShader(WebGL2RenderingContext.VERTEX_SHADER, vertexSource);
 			const fragmentShader = ShaderHandler.#compileShader(WebGL2RenderingContext.FRAGMENT_SHADER, fragmentSource);
