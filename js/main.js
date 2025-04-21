@@ -36,7 +36,8 @@ async function switchShader(shaderName) {
 
 	const shaderData = SHADERS.get(shaderName);
 
-	currentShader = new ShaderHandler(shaderData);
+	currentShader = new ShaderHandler(shaderName, shaderData);
+	currentShader.initialize();
 }
 
 function navbarButtonClickHandler(event) {
