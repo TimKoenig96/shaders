@@ -9,7 +9,7 @@ const SHADERS = new Map([
 ]);
 
 let currentShader;
-let canvas, gl, perfTimer;
+let canvas, gl, perfTimer, canvasWidth, canvasHeight;
 
 
 function setupNavbar() {
@@ -66,10 +66,23 @@ function applySearchParameters() {
 	if (SHADERS.has(shaderName)) switchShader(shaderName);
 }
 
+function resizeCanvasToFit() {
+	canvasWidth  = canvas.clientWidth;
+	canvasHeight = canvas.clientHeight;
+
+	canvas.width = canvasWidth;
+	canvas.height = canvasHeight;
+
+	gl.viewport(0, 0, canvasWidth, canvasHeight);
+}
+
 function init() {
 	canvas = document.getElementById("canvas");
 	gl = canvas.getContext("webgl2");
 	perfTimer = document.getElementById("perfTimer");
+
+	window.addEventListener("resize", resizeCanvasToFit);
+	resizeCanvasToFit();
 
 	setupNavbar();
 	applySearchParameters();
