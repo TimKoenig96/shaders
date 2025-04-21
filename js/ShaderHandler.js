@@ -3,6 +3,7 @@ import { gl, SHADERS } from "./main.js";
 export class ShaderHandler {
 	#shaderId;
 	#shaderData;
+	#program;
 
 	constructor(shaderId) {
 		this.#shaderId = shaderId;
@@ -48,6 +49,36 @@ export class ShaderHandler {
 	}
 
 	/**
+	 * Create and set up a program with provided shaders
+	 * @param {WebGLShader} vertexShader Compiled vertex shader
+	 * @param {WebGLShader} fragmentShader Compiled fragment shader
+	 * @returns {WebGLProgram}
+	 */
+	static #createShaderProgram(vertexShader, fragmentShader) {
+		const program = gl.createProgram();
+
+		gl.attachShader(program, vertexShader);
+		gl.attachShader(program, fragmentShader);
+		gl.linkProgram(program);
+
+		if (!gl.getProgramParameter(program, WebGL2RenderingContext.LINK_STATUS)) {
+			const info = gl.getProgramInfoLog(program);
+			gl.deleteProgram(program);
+			throw new Error(`Unable to link program"\n${info}`);
+		}
+
+		gl.validateProgram(program);
+
+		if (!gl.getProgramParameter(program, WebGL2RenderingContext.VALIDATE_STATUS)) {
+			const info = gl.getProgramInfoLog(program);
+			gl.deleteProgram(program);
+			throw new Error(`Failed to validate program:\n${info}`);
+		}
+
+		return program;
+	}
+
+	/**
 	 * Get all vertex and fragment data for the current shader
 	 * @returns {Object}
 	 */
@@ -78,6 +109,8 @@ export class ShaderHandler {
 
 			const vertexShader = ShaderHandler.#compileShader(WebGL2RenderingContext.VERTEX_SHADER, vertexSource);
 			const fragmentShader = ShaderHandler.#compileShader(WebGL2RenderingContext.FRAGMENT_SHADER, fragmentSource);
+
+			this.#program = ShaderHandler.#createShaderProgram(vertexShader, fragmentShader);
 		} catch (error) {
 			console.error("An error occurred during shader initialization:\n", error);
 		}
