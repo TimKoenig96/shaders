@@ -9,6 +9,7 @@ const SHADERS = new Map([
 ]);
 
 let currentShader;
+let canvas, gl, perfTimer;
 
 
 function setupNavbar() {
@@ -66,6 +67,10 @@ function applySearchParameters() {
 }
 
 function init() {
+	canvas = document.getElementById("canvas");
+	gl = canvas.getContext("webgl2");
+	perfTimer = document.getElementById("perfTimer");
+
 	setupNavbar();
 	applySearchParameters();
 }
