@@ -47,9 +47,9 @@ export class ShaderHandler {
 	}
 
 	/**
-	 * Initialize a shader
+	 * Initialize and start rendering the shader
 	 */
-	async initialize() {
+	async initializeAndStart() {
 		try {
 			const { vertexSource, fragmentSource } = await this.#getShaderData();
 		} catch (error) {
