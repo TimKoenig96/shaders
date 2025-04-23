@@ -32,11 +32,12 @@ export class ShaderHandler {
 	 * @param {String[]} files Array of file names to import
 	 * @returns {Promise} Awaitable promise
 	 */
-	static #loadGeometryModules(path, files) {
-		return Promise.all(files.map(async (fileName) => {
-			const module = await import(`${path}${fileName}`);
-			return module;
-		}));
+	static async #loadGeometryModules(path, files) {
+		const modules = await Promise.all(
+			files.map(fileName => import(`${path}${fileName}`))
+		);
+
+		return Object.assign({}, ...modules);
 	}
 
 	/**
@@ -124,12 +125,12 @@ export class ShaderHandler {
 		const shaderData = SHADERS.get(shaderId);
 
 		try {
-			const [rawSharedGeometry, rawGeometry] = await Promise.all([
+			const [sharedGeometry, geometry] = await Promise.all([
 				ShaderHandler.#loadGeometryModules("../shaders/shared/geometry/", shaderData.sharedGeometry ?? []),
 				ShaderHandler.#loadGeometryModules(`../shaders/projects/${shaderId}/`, shaderData.geometry ?? [])
 			]);
 
-			return [...rawSharedGeometry, ...rawGeometry];
+			return {...sharedGeometry, ...geometry};
 		} catch (error) {
 			throw error;
 		}
