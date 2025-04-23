@@ -3,13 +3,14 @@ import { gl, SHADERS } from "./main.js";
 export class ShaderHandler {
 	#shaderId;
 	#program;
+	#geometryModules;
 
 	constructor(shaderId) {
 		this.#shaderId = shaderId;
 	}
 
 	/**
-	 * Load all files from a specific directory and get their text contents
+	 * Load all shader files from a specific directory and get their text contents
 	 * @param {String} path Path to the files to be fetched
 	 * @param {String[]} files Array of file names to fetch
 	 * @returns {Promise} Awaitable promise
@@ -22,6 +23,19 @@ export class ShaderHandler {
 
 			const text = await resp.text();
 			return text;
+		}));
+	}
+
+	/**
+	 * Load all geometry modules from a specific directory
+	 * @param {String} path Path to the modules to be imported
+	 * @param {String[]} files Array of file names to import
+	 * @returns {Promise} Awaitable promise
+	 */
+	static #loadGeometryModules(path, files) {
+		return Promise.all(files.map(async (fileName) => {
+			const module = await import(`${path}${fileName}`);
+			return module;
 		}));
 	}
 
@@ -102,6 +116,26 @@ export class ShaderHandler {
 	}
 
 	/**
+	 * Get all geometry modules for the current shader
+	 * @param {String} shaderId Shader ID
+	 * @returns {Array}
+	 */
+	static async #getGeometries(shaderId) {
+		const shaderData = SHADERS.get(shaderId);
+
+		try {
+			const [rawSharedGeometry, rawGeometry] = await Promise.all([
+				ShaderHandler.#loadGeometryModules("../shaders/shared/geometry/", shaderData.sharedGeometry ?? []),
+				ShaderHandler.#loadGeometryModules(`../shaders/projects/${shaderId}/`, shaderData.geometry ?? [])
+			]);
+
+			return [...rawSharedGeometry, ...rawGeometry];
+		} catch (error) {
+			throw error;
+		}
+	}
+
+	/**
 	 * Render a frame
 	 * @param {Number} ms Automatically provided by `requestAnimationFrame`
 	 */
@@ -130,6 +164,8 @@ export class ShaderHandler {
 
 			const vertexShader = ShaderHandler.#compileShader(WebGL2RenderingContext.VERTEX_SHADER, vertexSource);
 			const fragmentShader = ShaderHandler.#compileShader(WebGL2RenderingContext.FRAGMENT_SHADER, fragmentSource);
+
+			this.#geometryModules = await ShaderHandler.#getGeometries(this.#shaderId);
 
 			this.#program = ShaderHandler.#createShaderProgram(vertexShader, fragmentShader);
 
