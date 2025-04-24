@@ -105,7 +105,7 @@ export class ShaderHandler {
 	/**
 	 * Get all geometry modules for the current shader
 	 * @param {String} shaderId Shader ID
-	 * @returns {Promise<Array>} Awaitable promise
+	 * @returns {Promise<Object>} Awaitable promise
 	 */
 	static async #getGeometryModules(shaderId) {
 		const shaderData = SHADERS.get(shaderId);
@@ -116,7 +116,7 @@ export class ShaderHandler {
 			 	...(shaderData.geometry ?? []).map(fileName => import(`../shaders/projects/${shaderId}/${fileName}`))
 			]);
 
-			return modules;
+			return Object.assign({}, ...modules);
 		} catch (error) {
 			throw error;
 		}
@@ -156,7 +156,7 @@ export class ShaderHandler {
 
 			gl.useProgram(this.#program);
 
-			const geometryModules = await ShaderHandler.#getGeometryModules(this.#shaderId);
+			this.#geometryModules = await ShaderHandler.#getGeometryModules(this.#shaderId);
 			requestAnimationFrame(this.#render.bind(this));
 		} catch (error) {
 			console.error("An error occurred during shader initialization:\n", error);
