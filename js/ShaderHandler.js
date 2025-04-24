@@ -27,20 +27,6 @@ export class ShaderHandler {
 	}
 
 	/**
-	 * Load all geometry modules from a specific directory
-	 * @param {String} path Path to the modules to be imported
-	 * @param {String[]} files Array of file names to import
-	 * @returns {Promise} Awaitable promise
-	 */
-	static async #loadGeometryModules(path, files) {
-		const modules = await Promise.all(
-			files.map(fileName => import(`${path}${fileName}`))
-		);
-
-		return Object.assign({}, ...modules);
-	}
-
-	/**
 	 * Compile a shaders' source code into a usable WebGL shader
 	 * @param {Number} shaderType Either `WebGL2RenderingContext.VERTEX_SHADER` or `.FRAGMENT_SHADER`
 	 * @param {String} shaderSource Shader source code
@@ -125,12 +111,12 @@ export class ShaderHandler {
 		const shaderData = SHADERS.get(shaderId);
 
 		try {
-			const [sharedGeometry, geometry] = await Promise.all([
-				ShaderHandler.#loadGeometryModules("../shaders/shared/geometry/", shaderData.sharedGeometry ?? []),
-				ShaderHandler.#loadGeometryModules(`../shaders/projects/${shaderId}/`, shaderData.geometry ?? [])
+			const modules = await Promise.all([
+				...(shaderData.sharedGeometry ?? []).map(fileName => import(`../shaders/shared/geometry/${fileName}`)),
+			 	...(shaderData.geometry ?? []).map(fileName => import(`../shaders/projects/${shaderId}/${fileName}`))
 			]);
 
-			return {...sharedGeometry, ...geometry};
+			return modules;
 		} catch (error) {
 			throw error;
 		}
