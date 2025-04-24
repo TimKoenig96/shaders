@@ -105,7 +105,7 @@ export class ShaderHandler {
 	/**
 	 * Get all geometry modules for the current shader
 	 * @param {String} shaderId Shader ID
-	 * @returns {Promise<Object>} Awaitable promise
+	 * @returns {Promise<Array>} Awaitable promise
 	 */
 	static async #getGeometryModules(shaderId) {
 		const shaderData = SHADERS.get(shaderId);
@@ -116,7 +116,7 @@ export class ShaderHandler {
 			 	...(shaderData.geometry ?? []).map(fileName => import(`../shaders/projects/${shaderId}/${fileName}`))
 			]);
 
-			return Object.assign({}, ...modules);
+			return modules.flatMap(mod => Object.values(mod));
 		} catch (error) {
 			throw error;
 		}
