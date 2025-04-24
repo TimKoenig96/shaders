@@ -13,7 +13,7 @@ export class ShaderHandler {
 	 * Load all shader files from a specific directory and get their text contents
 	 * @param {String} path Path to the files to be fetched
 	 * @param {String[]} files Array of file names to fetch
-	 * @returns {Promise} Awaitable promise
+	 * @returns {Promise<Array>} Awaitable promise
 	 */
 	static #loadShaderFiles(path, files) {
 		return Promise.all(files.map(async (fileName) => {
@@ -94,7 +94,7 @@ export class ShaderHandler {
 	/**
 	 * Get all vertex and fragment data for the current shader
 	 * @param {String} shaderId Shader ID
-	 * @returns {Object}
+	 * @returns {Promise<Object>} Awaitable promise
 	 */
 	static async #fetchShaderSourceCode(shaderId) {
 		const shaderData = SHADERS.get(shaderId);
@@ -119,9 +119,9 @@ export class ShaderHandler {
 	/**
 	 * Get all geometry modules for the current shader
 	 * @param {String} shaderId Shader ID
-	 * @returns {Array}
+	 * @returns {Promise<Array>} Awaitable promise
 	 */
-	static async #getGeometries(shaderId) {
+	static async #getGeometryModules(shaderId) {
 		const shaderData = SHADERS.get(shaderId);
 
 		try {
@@ -166,12 +166,11 @@ export class ShaderHandler {
 			const vertexShader = ShaderHandler.#compileShader(WebGL2RenderingContext.VERTEX_SHADER, vertexSource);
 			const fragmentShader = ShaderHandler.#compileShader(WebGL2RenderingContext.FRAGMENT_SHADER, fragmentSource);
 
-			this.#geometryModules = await ShaderHandler.#getGeometries(this.#shaderId);
-
 			this.#program = ShaderHandler.#createShaderProgram(vertexShader, fragmentShader);
 
 			gl.useProgram(this.#program);
 
+			const geometryModules = await ShaderHandler.#getGeometryModules(this.#shaderId);
 			requestAnimationFrame(this.#render.bind(this));
 		} catch (error) {
 			console.error("An error occurred during shader initialization:\n", error);
