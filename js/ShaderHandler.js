@@ -1,4 +1,4 @@
-import { gl, SHADERS } from "./main.js";
+import { canvasHeight, canvasWidth, gl, SHADERS } from "./main.js";
 
 export class ShaderHandler {
 	#shaderId;
@@ -199,17 +199,17 @@ export class ShaderHandler {
 	 * @param {Number} ms Automatically provided by `requestAnimationFrame`
 	 */
 	#render(ms) {
-		gl.useProgram(this.#program);
 		gl.clear(WebGL2RenderingContext.COLOR_BUFFER_BIT);
 
-		// TODO: Drawing
-		/* Note `gl.drawArrays(mode, first, count);`
-			Since mode can be multiple GL enums, needs to be specified per shader, eg. via geometry JS file
-			No reason in having first be anything other than 0 for now
-			Count should be dynamically calculated based on amount of vertices and mode chosen
-		*/
+		gl.uniform1f(this.#uniforms.u_time, ms / 1000.0);
+		gl.uniform2f(this.#uniforms.u_resolution, canvasWidth, canvasHeight);
 
-		// TODO: Performance timer measurement
+		for (const geometry of this.#geometryModules) {
+			gl.bindVertexArray(geometry.vao);
+			gl.drawArrays(geometry.drawMode, 0, geometry.drawCount);
+		}
+
+		gl.bindVertexArray(null);
 
 		requestAnimationFrame(this.#render.bind(this));
 	}
@@ -227,6 +227,8 @@ export class ShaderHandler {
 			this.#program = ShaderHandler.#createShaderProgram(vertexShader, fragmentShader);
 
 			gl.useProgram(this.#program);
+
+			gl.clearColor(0, 0, 0, 1);
 
 			this.#uniforms.u_time = gl.getUniformLocation(this.#program, "u_time");
 			this.#uniforms.u_resolution = gl.getUniformLocation(this.#program, "u_resolution");
