@@ -4,6 +4,7 @@ export class ShaderHandler {
 	#shaderId;
 	#program;
 	#geometryModules;
+	#uniforms = {};
 
 	constructor(shaderId) {
 		this.#shaderId = shaderId;
@@ -226,6 +227,9 @@ export class ShaderHandler {
 			this.#program = ShaderHandler.#createShaderProgram(vertexShader, fragmentShader);
 
 			gl.useProgram(this.#program);
+
+			this.#uniforms.u_time = gl.getUniformLocation(this.#program, "u_time");
+			this.#uniforms.u_resolution = gl.getUniformLocation(this.#program, "u_resolution");
 
 			this.#geometryModules = await ShaderHandler.#getGeometryModules(this.#shaderId);
 			ShaderHandler.#setupGeometryModules(this.#geometryModules, this.#program);
