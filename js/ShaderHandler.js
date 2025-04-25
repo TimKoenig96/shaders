@@ -2,11 +2,15 @@ import { canvasHeight, canvasWidth, gl, SHADERS } from "./main.js";
 
 export class ShaderHandler {
 	#shaderId;
+
 	#program;
 	#vertexShader;
 	#fragmentShader;
 	#geometryModules;
 	#uniforms = {};
+	#vertexAttribCount = 0;
+
+	#rendering;
 
 	constructor(shaderId) {
 		this.#shaderId = shaderId;
@@ -180,6 +184,7 @@ export class ShaderHandler {
 			// Location
 			const loc = gl.getAttribLocation(this.#program, "a_position");
 			gl.enableVertexAttribArray(loc);
+			this.#vertexAttribCount++;
 			gl.vertexAttribPointer(loc, 2, WebGL2RenderingContext.FLOAT, false, 0, 0);
 
 			// Does this have to be called iteratively?
@@ -200,6 +205,8 @@ export class ShaderHandler {
 	 * @param {Number} ms Automatically provided by `requestAnimationFrame`
 	 */
 	#render(ms) {
+		if (!this.#rendering) return;
+
 		gl.clear(WebGL2RenderingContext.COLOR_BUFFER_BIT);
 
 		gl.uniform1f(this.#uniforms.u_time, ms / 1000.0);
@@ -237,9 +244,41 @@ export class ShaderHandler {
 			this.#geometryModules = await ShaderHandler.#getGeometryModules(this.#shaderId);
 			this.#setupGeometryModules();
 
+			this.#rendering = true;
+
 			requestAnimationFrame(this.#render.bind(this));
 		} catch (error) {
 			console.error("An error occurred during shader initialization:\n", error);
 		}
+	}
+
+	/**
+	 * Kill current shader and clean up
+	 * @returns {Promise<Boolean>} Awaitable promise
+	 */
+	kill() {
+		return new Promise((resolve, _) => {
+			this.#rendering = false;
+
+			setTimeout(() => {
+				gl.bindVertexArray(null);
+				gl.useProgram(null);
+				gl.bindBuffer(WebGL2RenderingContext.ARRAY_BUFFER, null);
+				gl.bindBuffer(WebGL2RenderingContext.ELEMENT_ARRAY_BUFFER, null);
+
+				for (let i = 0; i < this.#vertexAttribCount; ++i) gl.disableVertexAttribArray(i);
+
+				gl.deleteProgram(this.#program);
+				gl.deleteShader(this.#vertexShader);
+				gl.deleteShader(this.#fragmentShader);
+
+				for (const geometry of this.#geometryModules) {
+					gl.deleteBuffer(geometry.vbo);
+					gl.deleteVertexArray(geometry.vao);
+				}
+
+				resolve(true);
+			}, 0);
+		});
 	}
 }
