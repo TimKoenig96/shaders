@@ -162,24 +162,23 @@ export class ShaderHandler {
 
 	/**
 	 * Setting up geometry modules with VAO/VBO and miscellaneous fields
-	 * @param {Array} geometryModules All geometry modules as an array
-	 * @param {WebGLShader} program Shader program to use
 	 */
-	static #setupGeometryModules(geometryModules, program) {
-		geometryModules.forEach((geometryData, index) => {
+	#setupGeometryModules() {
+		this.#geometryModules.forEach((geometryData, index) => {
 
 			// Vertex Array Object
 			const vao = gl.createVertexArray();
 			gl.bindVertexArray(vao);
-			geometryModules[index].vao = vao;
+			this.#geometryModules[index].vao = vao;
 
 			// Vertex Buffer Object
 			const vbo = gl.createBuffer();
 			gl.bindBuffer(WebGL2RenderingContext.ARRAY_BUFFER, vbo);
 			gl.bufferData(WebGL2RenderingContext.ARRAY_BUFFER, geometryData.attributes.a_position, WebGL2RenderingContext.STATIC_DRAW);
+			this.#geometryModules[index].vbo = vbo;
 
 			// Location
-			const loc = gl.getAttribLocation(program, "a_position");
+			const loc = gl.getAttribLocation(this.#program, "a_position");
 			gl.enableVertexAttribArray(loc);
 			gl.vertexAttribPointer(loc, 2, WebGL2RenderingContext.FLOAT, false, 0, 0);
 
@@ -188,7 +187,7 @@ export class ShaderHandler {
 			gl.bindBuffer(WebGL2RenderingContext.ARRAY_BUFFER, null);
 
 			// Calculate vertex count
-			geometryModules[index].drawCount = ShaderHandler.#getDrawCount(
+			this.#geometryModules[index].drawCount = ShaderHandler.#getDrawCount(
 				geometryData.attributes.a_position.length,
 				geometryData.twoDimensional,
 				geometryData.drawMode
@@ -236,7 +235,7 @@ export class ShaderHandler {
 			this.#uniforms.u_resolution = gl.getUniformLocation(this.#program, "u_resolution");
 
 			this.#geometryModules = await ShaderHandler.#getGeometryModules(this.#shaderId);
-			ShaderHandler.#setupGeometryModules(this.#geometryModules, this.#program);
+			this.#setupGeometryModules();
 
 			requestAnimationFrame(this.#render.bind(this));
 		} catch (error) {
