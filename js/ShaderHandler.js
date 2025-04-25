@@ -123,6 +123,77 @@ export class ShaderHandler {
 	}
 
 	/**
+	 * Get draw count required to display all vertices
+	 * @param {Number} numVertices Number of total vertices in an array
+	 * @param {Boolean} isTwoDimensional True if 2D, false if 3D
+	 * @param {GLenum} drawMode A `WebGL2RenderingContext` constant
+	 * @returns {Number} Amount of draw counts required to draw shape
+	 */
+	static #getDrawCount(numVertices, isTwoDimensional, drawMode) {
+		const vertexCount = numVertices / (isTwoDimensional ? 2 : 3);
+
+		switch (drawMode) {
+			case WebGL2RenderingContext.POINTS:
+				return vertexCount;
+
+			case WebGL2RenderingContext.LINE_STRIP:
+				return Math.max(vertexCount - 1, 0);
+
+			case WebGL2RenderingContext.LINE_LOOP:
+				return Math.max(vertexCount, 0);
+
+			case WebGL2RenderingContext.LINES:
+				return Math.floor(vertexCount / 2) * 2;
+
+			case WebGL2RenderingContext.TRIANGLE_STRIP:
+			case WebGL2RenderingContext.TRIANGLE_FAN:
+				return Math.max(vertexCount - 2, 0);
+
+			case WebGL2RenderingContext.TRIANGLES:
+				return Math.floor(vertexCount / 3) * 3;
+		
+			default:
+				throw new Error(`Unsupported draw-mode '${drawMode}'!`);
+		}
+	}
+
+	/**
+	 * Setting up geometry modules with VAO/VBO and miscellaneous fields
+	 * @param {Array} geometryModules All geometry modules as an array
+	 * @param {WebGLShader} program Shader program to use
+	 */
+	static #setupGeometryModules(geometryModules, program) {
+		geometryModules.forEach((geometryData, index) => {
+
+			// Vertex Array Object
+			const vao = gl.createVertexArray();
+			gl.bindVertexArray(vao);
+			geometryModules[index].vao = vao;
+
+			// Vertex Buffer Object
+			const vbo = gl.createBuffer();
+			gl.bindBuffer(WebGL2RenderingContext.ARRAY_BUFFER, vbo);
+			gl.bufferData(WebGL2RenderingContext.ARRAY_BUFFER, geometryData.attributes.a_position, WebGL2RenderingContext.STATIC_DRAW);
+
+			// Location
+			const loc = gl.getAttribLocation(program, "a_position");
+			gl.enableVertexAttribArray(loc);
+			gl.vertexAttribPointer(loc, 2, WebGL2RenderingContext.FLOAT, false, 0, 0);
+
+			// Does this have to be called iteratively?
+			gl.bindVertexArray(null);
+			gl.bindBuffer(WebGL2RenderingContext.ARRAY_BUFFER, null);
+
+			// Calculate vertex count
+			geometryModules[index].drawCount = ShaderHandler.#getDrawCount(
+				geometryData.attributes.a_position.length,
+				geometryData.twoDimensional,
+				geometryData.drawMode
+			);
+		});
+	}
+
+	/**
 	 * Render a frame
 	 * @param {Number} ms Automatically provided by `requestAnimationFrame`
 	 */
@@ -157,6 +228,8 @@ export class ShaderHandler {
 			gl.useProgram(this.#program);
 
 			this.#geometryModules = await ShaderHandler.#getGeometryModules(this.#shaderId);
+			ShaderHandler.#setupGeometryModules(this.#geometryModules, this.#program);
+
 			requestAnimationFrame(this.#render.bind(this));
 		} catch (error) {
 			console.error("An error occurred during shader initialization:\n", error);
