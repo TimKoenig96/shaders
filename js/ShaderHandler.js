@@ -3,6 +3,8 @@ import { canvasHeight, canvasWidth, gl, SHADERS } from "./main.js";
 export class ShaderHandler {
 	#shaderId;
 	#program;
+	#vertexShader;
+	#fragmentShader;
 	#geometryModules;
 	#uniforms = {};
 
@@ -221,10 +223,10 @@ export class ShaderHandler {
 		try {
 			const { vertexSource, fragmentSource } = await ShaderHandler.#fetchShaderSourceCode(this.#shaderId);
 
-			const vertexShader = ShaderHandler.#compileShader(WebGL2RenderingContext.VERTEX_SHADER, vertexSource);
-			const fragmentShader = ShaderHandler.#compileShader(WebGL2RenderingContext.FRAGMENT_SHADER, fragmentSource);
+			this.#vertexShader = ShaderHandler.#compileShader(WebGL2RenderingContext.VERTEX_SHADER, vertexSource);
+			this.#fragmentShader = ShaderHandler.#compileShader(WebGL2RenderingContext.FRAGMENT_SHADER, fragmentSource);
 
-			this.#program = ShaderHandler.#createShaderProgram(vertexShader, fragmentShader);
+			this.#program = ShaderHandler.#createShaderProgram(this.#vertexShader, this.#fragmentShader);
 
 			gl.useProgram(this.#program);
 
