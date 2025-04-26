@@ -11,6 +11,7 @@ export class ShaderHandler {
 	#vertexAttribCount = 0;
 
 	#rendering;
+	#renderStartMs;
 
 	constructor(shaderId) {
 		this.#shaderId = shaderId;
@@ -209,7 +210,7 @@ export class ShaderHandler {
 
 		gl.clear(WebGL2RenderingContext.COLOR_BUFFER_BIT);
 
-		gl.uniform1f(this.#uniforms.u_time, ms / 1000.0);
+		gl.uniform1f(this.#uniforms.u_time, (ms - this.#renderStartMs) / 1000.0);
 		gl.uniform2f(this.#uniforms.u_resolution, canvasWidth, canvasHeight);
 
 		for (const geometry of this.#geometryModules) {
@@ -247,6 +248,7 @@ export class ShaderHandler {
 			this.#setupGeometryModules();
 
 			this.#rendering = true;
+			this.#renderStartMs = performance.now();
 
 			requestAnimationFrame(this.#render.bind(this));
 		} catch (error) {
