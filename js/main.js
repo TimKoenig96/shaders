@@ -12,6 +12,32 @@ let currentShader;
 let canvas, perfTimer;
 export let gl, canvasWidth, canvasHeight;
 
+const frameTimeDeltas = [];
+const maxFrameTimeDeltasLength = 100;
+let frameTimeDeltaIndex = 0;
+let lastFrameTime;
+
+
+export function updatePerfTimer(ms) {
+	if (lastFrameTime === undefined) {
+		lastFrameTime = ms;
+		return;
+	}
+
+	const delta = ms - lastFrameTime;
+	frameTimeDeltas[frameTimeDeltaIndex] = delta;
+	
+	let total = 0;
+	const len = frameTimeDeltas.length;
+	for (let i = 0; i < len; i++) total += frameTimeDeltas[i];
+	const avg = total / len;
+
+	const avgFps = (1000 / avg).toFixed(0);
+	perfTimer.textContent = `${avgFps}fps`;
+	
+	lastFrameTime = ms;
+	frameTimeDeltaIndex = (frameTimeDeltaIndex + 1) % maxFrameTimeDeltasLength;
+}
 
 function setupNavbar() {
 	const navbar = document.getElementById("navbar");

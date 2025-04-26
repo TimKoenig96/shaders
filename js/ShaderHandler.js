@@ -1,4 +1,4 @@
-import { canvasHeight, canvasWidth, gl, SHADERS } from "./main.js";
+import { canvasHeight, canvasWidth, gl, SHADERS, updatePerfTimer } from "./main.js";
 
 export class ShaderHandler {
 	#shaderId;
@@ -218,6 +218,8 @@ export class ShaderHandler {
 		}
 
 		gl.bindVertexArray(null);
+
+		updatePerfTimer(ms);
 
 		requestAnimationFrame(this.#render.bind(this));
 	}
