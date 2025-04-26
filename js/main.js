@@ -4,8 +4,12 @@ export const SHADERS = new Map([
 	["water-1", {
 		label: "Water 1",
 		desc: "First ever attempt at making shaders.",
-		date: "20th Apr 2025"
-	}]
+		date: "26th Apr 2025",
+
+		fragment: ["fragment.frag"],
+		sharedVertex: ["regular.vert"],
+		sharedGeometry: ["fullscreenTriangle.js"],
+	}],
 ]);
 
 let currentShader;
