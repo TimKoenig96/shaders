@@ -1,4 +1,4 @@
-import { canvasHeight, canvasWidth, gl, SHADERS, updatePerfTimer } from "./main.js";
+import { canvasHeight, canvasWidth, gl, SHADERS, updatePerfTimer, baseUrl } from "./main.js";
 
 export class ShaderHandler {
 	#shaderId;
@@ -95,10 +95,10 @@ export class ShaderHandler {
 
 		try {
 			const [sharedVertexSources, vertexSources, sharedFragmentSources, fragmentSources] = await Promise.all([
-				ShaderHandler.#loadShaderFiles("../shaders/shared/vertex/", shaderData.sharedVertex ?? []),
-				ShaderHandler.#loadShaderFiles(`../shaders/projects/${shaderId}/`, shaderData.vertex ?? []),
-				ShaderHandler.#loadShaderFiles("../shaders/shared/fragment/", shaderData.sharedFragment ?? []),
-				ShaderHandler.#loadShaderFiles(`../shaders/projects/${shaderId}/`, shaderData.fragment ?? [])
+				ShaderHandler.#loadShaderFiles(`${baseUrl}shaders/shared/vertex/`, shaderData.sharedVertex ?? []),
+				ShaderHandler.#loadShaderFiles(`${baseUrl}shaders/projects/${shaderId}/`, shaderData.vertex ?? []),
+				ShaderHandler.#loadShaderFiles(`${baseUrl}shaders/shared/fragment/`, shaderData.sharedFragment ?? []),
+				ShaderHandler.#loadShaderFiles(`${baseUrl}shaders/projects/${shaderId}/`, shaderData.fragment ?? [])
 			]);
 
 			const vertexSource = [...sharedVertexSources, ...vertexSources].join("\n");
@@ -120,8 +120,8 @@ export class ShaderHandler {
 
 		try {
 			const modules = await Promise.all([
-				...(shaderData.sharedGeometry ?? []).map(fileName => import(`../shaders/shared/geometry/${fileName}`)),
-			 	...(shaderData.geometry ?? []).map(fileName => import(`../shaders/projects/${shaderId}/${fileName}`))
+				...(shaderData.sharedGeometry ?? []).map(fileName => import(`${baseUrl}shaders/shared/geometry/${fileName}`)),
+			 	...(shaderData.geometry ?? []).map(fileName => import(`${baseUrl}shaders/projects/${shaderId}/${fileName}`))
 			]);
 
 			return modules.flatMap(mod => Object.values(mod));

@@ -16,6 +16,8 @@ let currentShader;
 let canvas, perfTimer;
 export let gl, canvasWidth, canvasHeight;
 
+export const baseUrl = `${window.location.origin}${window.location.pathname}`;
+
 const frameTimeDeltas = [];
 const maxFrameTimeDeltasLength = 100;
 let frameTimeDeltaIndex = 0;
